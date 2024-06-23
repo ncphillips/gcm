@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\EquipmentController;
+use App\Livewire\EquipmentIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,4 +16,9 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+});
+
+
+Route::name('equipment.')->prefix('/equipment')->group(function() {
+    Route::name('index')->get('/', EquipmentIndex::class);
 });
