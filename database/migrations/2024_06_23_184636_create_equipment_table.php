@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('description');
             $table->string('reference');
             $table->string('notes');
-            $table->integer('tech_level');
-            $table->integer('value');
+            $table->string('tech_level');
+            $table->float('value');
             $table->string('weight');
             $table->timestamps();
         });
