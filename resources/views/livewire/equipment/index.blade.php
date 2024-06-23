@@ -1,6 +1,6 @@
-<tempalte>
+<x-section>
     <h1>Equipment</h1>
-    <ul>
+    <ul class="flex flex-col gap-2">
         @foreach ($equipment as $item)
             <li id="equipment-{{$item->id}}">
                 <strong>{{ $item->description}}: </strong>
@@ -10,4 +10,4 @@
             </li>
         @endforeach
     </ul>
-</tempalte>
+</x-section>

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Equipment;
 
 use App\Models\Equipment;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 
-class EquipmentIndex extends Component
+class Index extends Component
 {
 
     /**
