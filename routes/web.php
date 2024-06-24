@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Equipment;
+use App\Livewire\Skills;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,4 +21,8 @@ Route::middleware([
 
 Route::name('equipment.')->prefix('/equipment')->group(function () {
     Route::name('index')->get('/', Equipment\Index::class);
+});
+
+Route::name('skills.')->prefix('/skills')->group(function () {
+    Route::name('index')->get('/', Skills\Index::class);
 });

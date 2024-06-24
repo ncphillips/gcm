@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Data\EquipmentData;
 use App\Data\GCSEquipmentListData;
 use App\Models\Equipment;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class GCSEquipmentSeeder extends Seeder
