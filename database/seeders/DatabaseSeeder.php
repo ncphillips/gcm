@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,8 +17,9 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->withPersonalTeam()->create();
 
         $this->call([
-            GCSEquipmentSeeder::class,
-            GCSBasicSetSkillsSeeder::class,
+//            GCSEquipmentSeeder::class,
+//            GCSBasicSetSkillsSeeder::class,
+            ExampleGCSCharacterSheetSeeder::class,
         ]);
     }
 }

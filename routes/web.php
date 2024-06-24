@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Character;
 use App\Livewire\Equipment;
 use App\Livewire\Skills;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,9 @@ Route::middleware([
     })->name('dashboard');
 });
 
+Route::name('characters.')->prefix('/characters')->group(function () {
+    Route::name('index')->get('/', Character\Index::class);
+});
 
 Route::name('equipment.')->prefix('/equipment')->group(function () {
     Route::name('index')->get('/', Equipment\Index::class);
