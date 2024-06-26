@@ -20,7 +20,7 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::get('', Root::class);
+Route::name('root')->get('', Root::class);
 
 Route::name('characters.')->prefix('/characters')->group(function () {
     Route::name('index')->get('/', Character\Index::class);

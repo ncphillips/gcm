@@ -23,6 +23,8 @@
 <div class="min-h-screen bg-gray-100">
     @if(Auth::user())
         @livewire('navigation-menu')
+    @else
+        <x-navigation-menu-guest />
     @endif
 
     <!-- Page Heading -->
