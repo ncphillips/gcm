@@ -12,7 +12,17 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <!-- ... -->
+                    <x-nav-link href="{{ route('characters.index') }}" :active="request()->routeIs('characters.index')">
+                        {{ __('Characters') }}
+                    </x-nav-link>
+
+                    <x-nav-link href="{{ route('equipment.index') }}" :active="request()->routeIs('equipment.index')">
+                        {{ __('Equipment') }}
+                    </x-nav-link>
+
+                    <x-nav-link href="{{ route('skills.index') }}" :active="request()->routeIs('skills.index')">
+                        {{ __('Skills') }}
+                    </x-nav-link>
                 </div>
             </div>
 
