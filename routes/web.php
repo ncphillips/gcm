@@ -6,10 +6,36 @@ use App\Livewire\Root;
 use App\Livewire\Skills;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+/**
+ * Root
+ */
+Route::name('root')->get('/', Root::class);
+
+/**
+ * Characters
+ */
+Route::name('characters.')->prefix('/characters')->group(function () {
+    Route::name('index')->get('/', Character\Index::class);
+    Route::name('show')->get('/{character}', Character\Show::class);
 });
 
+/**
+ * Equipment
+ */
+Route::name('equipment.')->prefix('/equipment')->group(function () {
+    Route::name('index')->get('/', Equipment\Index::class);
+});
+
+/**
+ * Skills
+ */
+Route::name('skills.')->prefix('/skills')->group(function () {
+    Route::name('index')->get('/', Skills\Index::class);
+});
+
+/**
+ * Logged In
+ */
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -20,16 +46,3 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::name('root')->get('', Root::class);
-
-Route::name('characters.')->prefix('/characters')->group(function () {
-    Route::name('index')->get('/', Character\Index::class);
-});
-
-Route::name('equipment.')->prefix('/equipment')->group(function () {
-    Route::name('index')->get('/', Equipment\Index::class);
-});
-
-Route::name('skills.')->prefix('/skills')->group(function () {
-    Route::name('index')->get('/', Skills\Index::class);
-});
