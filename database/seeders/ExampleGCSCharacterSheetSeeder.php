@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Data\GCS\CharacterData;
+use App\Data\SkillData;
 use App\Models\Character;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,7 +19,9 @@ class ExampleGCSCharacterSheetSeeder extends Seeder
         $files = glob(__DIR__.'/character_sheets/*.gcs');
 
         foreach ($files as $file) {
-            $gcs_data = CharacterData::from(json_decode(file_get_contents($file), true));
+            $payloads = json_decode(file_get_contents($file), true);
+
+            $gcs_data = CharacterData::from($payloads);
 
             Character::create([
                 'name' => $gcs_data->profile->name,
