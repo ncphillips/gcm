@@ -5,6 +5,7 @@ namespace App\Aggregates;
 use App\Data\GCS\AttributeData;
 use App\StorableEvents\CharacterCreated;
 use App\StorableEvents\CharacterNamed;
+use App\StorableEvents\CharacterPointsSpentOnAttribute;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class Character extends AggregateRoot
@@ -33,6 +34,13 @@ class Character extends AggregateRoot
         return $this;
     }
 
+    public function addPointsToAttribute(string $string, int $int): self
+    {
+        $this->recordThat(new CharacterPointsSpentOnAttribute($string, $int));
+
+        return $this;
+    }
+
     protected function applyCharacterCreated(CharacterCreated $event): void
     {
         $this->playerUuid = $event->playerUuid;
@@ -45,5 +53,21 @@ class Character extends AggregateRoot
     protected function applyCharacterNamed(CharacterNamed $event): void
     {
         $this->name = $event->name;
+    }
+
+    protected function applyCharacterPointsSpentOnAttribute(CharacterPointsSpentOnAttribute $event): void
+    {
+        $attribute = $this->{$event->attr_id};
+        $attribute->calc->points += $event->points;
+
+        $cost_per_level = match($event->attr_id) {
+            'st', 'ht' => 10,
+            'dx', 'iq' => 20,
+        };
+
+        $adj = $event->points / $cost_per_level;
+
+        $attribute->adj = $adj;
+        $attribute->calc->value = 10 + $adj;
     }
 }

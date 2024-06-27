@@ -6,6 +6,7 @@ use App\Aggregates\Character;
 use App\Data\GCS\AttributeData;
 use App\StorableEvents\CharacterCreated;
 use App\StorableEvents\CharacterNamed;
+use App\StorableEvents\CharacterPointsSpentOnAttribute;
 use Tests\TestCase;
 
 class CreatingCharactersTest extends TestCase
@@ -40,5 +41,43 @@ class CreatingCharactersTest extends TestCase
             ->aggregateRoot();
 
         $this->assertEquals($name, $character->name);
+    }
+
+    function test_add_level_to_attribute()
+    {
+        /** @var Character $character */
+        $character = Character::fake()
+            ->given([new CharacterCreated(playerUuid: '1234')])
+            ->when(fn(Character $character) => $character->addPointsToAttribute('st', 10))
+            ->assertRecorded(new CharacterPointsSpentOnAttribute(attr_id: 'st', points: 10))
+            ->aggregateRoot();
+
+        $this->assertEquals(AttributeData::from([
+            'attr_id' => 'st',
+            'adj' => 1,
+            'calc' => [
+                'value' => 11,
+                'points' => 10,
+            ],
+        ]), $character->st);
+    }
+
+    function test_add_half_level_to_attribute()
+    {
+        /** @var Character $character */
+        $character = Character::fake()
+            ->given([new CharacterCreated(playerUuid: '1234')])
+            ->when(fn(Character $character) => $character->addPointsToAttribute('dx', 5))
+            ->assertRecorded(new CharacterPointsSpentOnAttribute(attr_id: 'dx', points: 5))
+            ->aggregateRoot();
+
+        $this->assertEquals(AttributeData::from([
+            'attr_id' => 'dx',
+            'adj' => 0,
+            'calc' => [
+                'value' => 10,
+                'points' => 5,
+            ],
+        ]), $character->dx);
     }
 }
