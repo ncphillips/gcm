@@ -27,6 +27,7 @@ class CreatingCharactersTest extends TestCase
         $this->assertEquals(AttributeData::dx(), $character->dx);
         $this->assertEquals(AttributeData::iq(), $character->iq);
         $this->assertEquals(AttributeData::ht(), $character->ht);
+        $this->assertEquals(150, $character->points);
     }
 
     function test_naming_characters()
@@ -60,6 +61,7 @@ class CreatingCharactersTest extends TestCase
                 'points' => 10,
             ],
         ]), $character->st);
+        $this->assertEquals(140, $character->points);
     }
 
     function test_add_half_level_to_attribute()
@@ -79,5 +81,6 @@ class CreatingCharactersTest extends TestCase
                 'points' => 5,
             ],
         ]), $character->dx);
+        $this->assertEquals(145, $character->points);
     }
 }

@@ -12,12 +12,14 @@ class Character extends AggregateRoot
 {
     public string $playerUuid;
     public string $name;
+    public int $points;
 
     // Primary Attributes
     public AttributeData $st;
     public AttributeData $dx;
     public AttributeData $iq;
     public AttributeData $ht;
+
 
 
     public function create(string $playerUuid): self
@@ -48,6 +50,7 @@ class Character extends AggregateRoot
         $this->dx = AttributeData::dx();
         $this->iq = AttributeData::iq();
         $this->ht = AttributeData::ht();
+        $this->points = 150;
     }
 
     protected function applyCharacterNamed(CharacterNamed $event): void
@@ -57,17 +60,18 @@ class Character extends AggregateRoot
 
     protected function applyCharacterPointsSpentOnAttribute(CharacterPointsSpentOnAttribute $event): void
     {
-        $attribute = $this->{$event->attr_id};
-        $attribute->calc->points += $event->points;
+        $this->points -= $event->points;
 
         $cost_per_level = match($event->attr_id) {
             'st', 'ht' => 10,
             'dx', 'iq' => 20,
         };
 
-        $adj = $event->points / $cost_per_level;
+        $new_adj = $event->points / $cost_per_level;
 
-        $attribute->adj = $adj;
-        $attribute->calc->value = 10 + $adj;
+        $attribute = $this->{$event->attr_id};
+        $attribute->adj = $new_adj;
+        $attribute->calc->value = 10 + $new_adj;
+        $attribute->calc->points += $event->points;
     }
 }
