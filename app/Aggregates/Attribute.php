@@ -45,6 +45,7 @@ class Attribute extends AggregateRoot
         return $this;
     }
 
+
     protected function applyAttributeInitialized(AttributeInitialized $event): void
     {
         $this->characterUuid = $event->characterUuid;
@@ -57,12 +58,20 @@ class Attribute extends AggregateRoot
     public function applyPointsAddedToAttribute(PointsAddedToAttribute $event): void
     {
         $this->points += $event->points;
-        $this->level = ($this->points / $this->costPerLevel) + 10;
+        $this->recalculateLevel();
     }
 
     public function applyPointsRemovedFromAttribute(PointsRemovedFromAttribute $event): void
     {
         $this->points -= $event->points;
+        $this->recalculateLevel();
+    }
+
+    /**
+     * @return void
+     */
+    private function recalculateLevel(): void
+    {
         $this->level = ($this->points / $this->costPerLevel) + 10;
     }
 }
