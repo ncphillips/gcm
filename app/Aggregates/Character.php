@@ -50,6 +50,21 @@ class Character extends AggregateRoot
         return $this;
     }
 
+
+    protected function recalculateAttribute(string $attr_id): void
+    {
+        $cost_per_level = match ($attr_id) {
+            'st', 'ht' => 10,
+            'dx', 'iq' => 20,
+        };
+
+        $attribute = $this->{$attr_id};
+
+        $new_adj = $attribute->calc->points / $cost_per_level;
+        $attribute->adj = $new_adj;
+        $attribute->calc->value = 10 + $new_adj;
+    }
+
     protected function applyCharacterCreated(CharacterCreated $event): void
     {
         $this->playerUuid = $event->playerUuid;
@@ -68,34 +83,18 @@ class Character extends AggregateRoot
     protected function applyCharacterPointsSpentOnAttribute(CharacterPointsSpentOnAttribute $event): void
     {
         $this->points -= $event->points;
-
-        $cost_per_level = match ($event->attr_id) {
-            'st', 'ht' => 10,
-            'dx', 'iq' => 20,
-        };
-
         $attribute = $this->{$event->attr_id};
         $attribute->calc->points += $event->points;
 
-        $new_adj = $attribute->calc->points / $cost_per_level;
-        $attribute->adj = $new_adj;
-        $attribute->calc->value = 10 + $new_adj;
+        $this->recalculateAttribute($event->attr_id);
     }
 
     protected function applyCharacterPointsReclaimedFromAttribute(CharacterPointsReclaimedFromAttribute $event): void
     {
         $this->points += $event->points;
-
-        $cost_per_level = match ($event->attr_id) {
-            'st', 'ht' => 10,
-            'dx', 'iq' => 20,
-        };
-
         $attribute = $this->{$event->attr_id};
         $attribute->calc->points -= $event->points;
 
-        $new_adj = $attribute->calc->points / $cost_per_level;
-        $attribute->adj = $new_adj;
-        $attribute->calc->value = 10 + $new_adj;
+        $this->recalculateAttribute($event->attr_id);
     }
 }
