@@ -5,6 +5,7 @@ namespace App\Aggregates;
 use App\Data\GCS\AttributeData;
 use App\StorableEvents\CharacterCreated;
 use App\StorableEvents\CharacterNamed;
+use App\StorableEvents\CharacterPointsReclaimedFromAttribute;
 use App\StorableEvents\CharacterPointsSpentOnAttribute;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
@@ -19,7 +20,6 @@ class Character extends AggregateRoot
     public AttributeData $dx;
     public AttributeData $iq;
     public AttributeData $ht;
-
 
 
     public function create(string $playerUuid): self
@@ -43,6 +43,13 @@ class Character extends AggregateRoot
         return $this;
     }
 
+    public function removePointsToAttribute(string $string, int $int): self
+    {
+        $this->recordThat(new CharacterPointsReclaimedFromAttribute($string, $int));
+
+        return $this;
+    }
+
     protected function applyCharacterCreated(CharacterCreated $event): void
     {
         $this->playerUuid = $event->playerUuid;
@@ -62,7 +69,7 @@ class Character extends AggregateRoot
     {
         $this->points -= $event->points;
 
-        $cost_per_level = match($event->attr_id) {
+        $cost_per_level = match ($event->attr_id) {
             'st', 'ht' => 10,
             'dx', 'iq' => 20,
         };
@@ -73,5 +80,22 @@ class Character extends AggregateRoot
         $attribute->adj = $new_adj;
         $attribute->calc->value = 10 + $new_adj;
         $attribute->calc->points += $event->points;
+    }
+
+    protected function applyCharacterPointsReclaimedFromAttribute(CharacterPointsReclaimedFromAttribute $event): void
+    {
+        $this->points += $event->points;
+
+        $cost_per_level = match ($event->attr_id) {
+            'st', 'ht' => 10,
+            'dx', 'iq' => 20,
+        };
+
+        $attribute = $this->{$event->attr_id};
+        $attribute->calc->points -= $event->points;
+
+        $new_adj = $attribute->calc->points / $cost_per_level;
+        $attribute->adj = $new_adj;
+        $attribute->calc->value = 10 + $new_adj;
     }
 }

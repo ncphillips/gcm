@@ -1,15 +1,16 @@
 <?php
 
-namespace Tests\Aggregates\Character;
+namespace Tests\Aggregates;
 
 use App\Aggregates\Character;
 use App\Data\GCS\AttributeData;
 use App\StorableEvents\CharacterCreated;
 use App\StorableEvents\CharacterNamed;
+use App\StorableEvents\CharacterPointsReclaimedFromAttribute;
 use App\StorableEvents\CharacterPointsSpentOnAttribute;
 use Tests\TestCase;
 
-class CreatingCharactersTest extends TestCase
+class CharactersTest extends TestCase
 {
     function test_sets_the_player_uuid()
     {
@@ -82,5 +83,25 @@ class CreatingCharactersTest extends TestCase
             ],
         ]), $character->dx);
         $this->assertEquals(145, $character->points);
+    }
+
+    function test_removing_points_from_attributes()
+    {
+        /** @var Character $character */
+        $character = Character::fake()
+            ->given([new CharacterCreated(playerUuid: '1234')])
+            ->when(fn(Character $character) => $character->removePointsToAttribute('st', 10))
+            ->assertRecorded(new CharacterPointsReclaimedFromAttribute(attr_id: 'st', points: 10))
+            ->aggregateRoot();
+
+        $this->assertEquals(AttributeData::from([
+            'attr_id' => 'st',
+            'adj' => -1,
+            'calc' => [
+                'value' => 9,
+                'points' => -10,
+            ],
+        ]), $character->st);
+        $this->assertEquals(160, $character->points);
     }
 }
