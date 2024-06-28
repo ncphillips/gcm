@@ -4,6 +4,7 @@ namespace Tests\Aggregates;
 
 use App\Aggregates\Attribute;
 use App\StorableEvents\AttributeInitialized;
+use App\StorableEvents\PointsAddedToAttribute;
 use PHPUnit\Framework\TestCase;
 
 class AttributeTest extends TestCase
@@ -30,6 +31,22 @@ class AttributeTest extends TestCase
         $this->assertEquals(10, $attribute->costPerLevel);
         $this->assertEquals(10, $attribute->level);
         $this->assertEquals(0, $attribute->points);
+    }
+
+    public function test_add_points_equivalent_to_one_level()
+    {
+        $costPerLevel = 10;
+
+        /** @var Attribute $attribute */
+        $attribute = Attribute::fake()
+            ->given(new AttributeInitialized('1234', 'st', $costPerLevel))
+            ->when(fn(Attribute $attribute) => $attribute->addPoints(10))
+            ->assertRecorded(new PointsAddedToAttribute($costPerLevel))
+            ->aggregateRoot();
+
+        $this->assertEquals(10, $attribute->points);
+        $this->assertEquals(11, $attribute->level);
+
     }
 
 }

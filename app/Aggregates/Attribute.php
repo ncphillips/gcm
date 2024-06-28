@@ -3,6 +3,7 @@
 namespace App\Aggregates;
 
 use App\StorableEvents\AttributeInitialized;
+use App\StorableEvents\PointsAddedToAttribute;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class Attribute extends AggregateRoot
@@ -29,6 +30,12 @@ class Attribute extends AggregateRoot
         return $this;
     }
 
+    public function addPoints(int $int): self
+    {
+        $this->recordThat(new PointsAddedToAttribute($int));
+
+        return $this;
+    }
 
     protected function applyAttributeInitialized(AttributeInitialized $event): void
     {
@@ -37,5 +44,11 @@ class Attribute extends AggregateRoot
         $this->costPerLevel = $event->costPerPoint;
         $this->level = 10;
         $this->points = 0;
+    }
+
+    public function applyPointsAddedToAttribute(PointsAddedToAttribute $event): void
+    {
+        $this->points += $event->points;
+        $this->level += 1;
     }
 }
