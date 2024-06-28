@@ -40,13 +40,28 @@ class AttributeTest extends TestCase
         /** @var Attribute $attribute */
         $attribute = Attribute::fake()
             ->given(new AttributeInitialized('1234', 'st', $costPerLevel))
-            ->when(fn(Attribute $attribute) => $attribute->addPoints(10))
+            ->when(fn(Attribute $attribute) => $attribute->addPoints($costPerLevel))
             ->assertRecorded(new PointsAddedToAttribute($costPerLevel))
             ->aggregateRoot();
 
         $this->assertEquals(10, $attribute->points);
         $this->assertEquals(11, $attribute->level);
+    }
 
+    public function test_add_points_equivalent_to_half_level()
+    {
+        $costPerLevel = 10;
+        $points = $costPerLevel / 2;
+
+        /** @var Attribute $attribute */
+        $attribute = Attribute::fake()
+            ->given(new AttributeInitialized('1234', 'st', $costPerLevel))
+            ->when(fn(Attribute $attribute) => $attribute->addPoints($points))
+            ->assertRecorded(new PointsAddedToAttribute($points))
+            ->aggregateRoot();
+
+        $this->assertEquals($points, $attribute->points);
+        $this->assertEquals(10, $attribute->level);
     }
 
 }

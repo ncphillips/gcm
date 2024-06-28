@@ -49,6 +49,6 @@ class Attribute extends AggregateRoot
     public function applyPointsAddedToAttribute(PointsAddedToAttribute $event): void
     {
         $this->points += $event->points;
-        $this->level += 1;
+        $this->level = ($this->points / $this->costPerLevel) + 10;
     }
 }
