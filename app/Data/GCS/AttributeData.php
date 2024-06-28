@@ -32,7 +32,7 @@ class AttributeData extends Data
             'attr_id' => 'dx',
             'adj' => 0,
             'calc' => [
-                'value' => 20,
+                'value' => 10,
                 'points' => 0,
             ],
         ]);
@@ -44,7 +44,7 @@ class AttributeData extends Data
             'attr_id' => 'iq',
             'adj' => 0,
             'calc' => [
-                'value' => 20,
+                'value' => 10,
                 'points' => 0,
             ],
         ]);
@@ -56,7 +56,7 @@ class AttributeData extends Data
             'attr_id' => 'ht',
             'adj' => 0,
             'calc' => [
-                'value' => 20,
+                'value' => 10,
                 'points' => 0,
             ],
         ]);
