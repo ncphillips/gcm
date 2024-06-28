@@ -5,6 +5,7 @@ namespace Tests\Aggregates;
 use App\Aggregates\Attribute;
 use App\StorableEvents\AttributeInitialized;
 use App\StorableEvents\PointsAddedToAttribute;
+use App\StorableEvents\PointsRemovedFromAttribute;
 use PHPUnit\Framework\TestCase;
 
 class AttributeTest extends TestCase
@@ -64,4 +65,20 @@ class AttributeTest extends TestCase
         $this->assertEquals(10, $attribute->level);
     }
 
+    public function test_remove_points_equivalent_to_two_levels()
+    {
+        $costPerLevel = 10;
+        $points = $costPerLevel * 2;
+        $expectedLevel = 10 - 2;
+
+        /** @var Attribute $attribute */
+        $attribute = Attribute::fake()
+            ->given(new AttributeInitialized('1234', 'st', $costPerLevel))
+            ->when(fn(Attribute $attribute) => $attribute->removePoints($points))
+            ->assertRecorded(new PointsRemovedFromAttribute($points))
+            ->aggregateRoot();
+
+        $this->assertEquals(-$points, $attribute->points);
+        $this->assertEquals($expectedLevel, $attribute->level);
+    }
 }

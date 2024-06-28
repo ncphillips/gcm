@@ -4,6 +4,7 @@ namespace App\Aggregates;
 
 use App\StorableEvents\AttributeInitialized;
 use App\StorableEvents\PointsAddedToAttribute;
+use App\StorableEvents\PointsRemovedFromAttribute;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class Attribute extends AggregateRoot
@@ -37,6 +38,13 @@ class Attribute extends AggregateRoot
         return $this;
     }
 
+    public function removePoints(int $points): self
+    {
+        $this->recordThat(new PointsRemovedFromAttribute($points));
+
+        return $this;
+    }
+
     protected function applyAttributeInitialized(AttributeInitialized $event): void
     {
         $this->characterUuid = $event->characterUuid;
@@ -49,6 +57,12 @@ class Attribute extends AggregateRoot
     public function applyPointsAddedToAttribute(PointsAddedToAttribute $event): void
     {
         $this->points += $event->points;
+        $this->level = ($this->points / $this->costPerLevel) + 10;
+    }
+
+    public function applyPointsRemovedFromAttribute(PointsRemovedFromAttribute $event): void
+    {
+        $this->points -= $event->points;
         $this->level = ($this->points / $this->costPerLevel) + 10;
     }
 }
