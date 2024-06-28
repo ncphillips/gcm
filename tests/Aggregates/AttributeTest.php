@@ -14,45 +14,46 @@ class AttributeTest extends TestCase
     public function test_initializing_attribute()
     {
         $characterUuid = '1234';
-        $attr_id = 'st';
-        $cost_per_point = 10;
+        $attrId = 'st';
+        $costPerLevel = 10;
+        $startingPoints = 0;
+        $startingLevel = 10;
 
         /** @var Attribute $attribute */
         $attribute = Attribute::fake()
-            ->when(fn(Attribute $attribute) => $attribute->initialize(
-                $characterUuid,
-                $attr_id,
-                $cost_per_point,
-            ))
-            ->assertRecorded(new AttributeInitialized($characterUuid, $attr_id, $cost_per_point))
+            ->when(fn(Attribute $attribute) => $attribute->initialize($characterUuid, $attrId, $costPerLevel))
+            ->assertRecorded(new AttributeInitialized($characterUuid, $attrId, $costPerLevel))
             ->aggregateRoot();
 
         $this->assertEquals($characterUuid, $attribute->characterUuid);
-        $this->assertEquals($attr_id, $attribute->attrId);
-        $this->assertEquals(10, $attribute->costPerLevel);
-        $this->assertEquals(10, $attribute->level);
-        $this->assertEquals(0, $attribute->points);
+        $this->assertEquals($attrId, $attribute->attrId);
+        $this->assertEquals($costPerLevel, $attribute->costPerLevel);
+        $this->assertEquals($startingLevel, $attribute->level);
+        $this->assertEquals($startingPoints, $attribute->points);
     }
 
     public function test_add_points_equivalent_to_one_level()
     {
         $costPerLevel = 10;
+        $points = $costPerLevel;
+        $expectedLevel = 10 + 1;
 
         /** @var Attribute $attribute */
         $attribute = Attribute::fake()
             ->given(new AttributeInitialized('1234', 'st', $costPerLevel))
             ->when(fn(Attribute $attribute) => $attribute->addPoints($costPerLevel))
-            ->assertRecorded(new PointsAddedToAttribute($costPerLevel))
+            ->assertRecorded(new PointsAddedToAttribute($points))
             ->aggregateRoot();
 
-        $this->assertEquals(10, $attribute->points);
-        $this->assertEquals(11, $attribute->level);
+        $this->assertEquals($points, $attribute->points);
+        $this->assertEquals($expectedLevel, $attribute->level);
     }
 
     public function test_add_points_equivalent_to_half_level()
     {
         $costPerLevel = 10;
         $points = $costPerLevel / 2;
+        $expectedLevel = 10;
 
         /** @var Attribute $attribute */
         $attribute = Attribute::fake()
@@ -62,7 +63,7 @@ class AttributeTest extends TestCase
             ->aggregateRoot();
 
         $this->assertEquals($points, $attribute->points);
-        $this->assertEquals(10, $attribute->level);
+        $this->assertEquals($expectedLevel, $attribute->level);
     }
 
     public function test_remove_points_equivalent_to_two_levels()
