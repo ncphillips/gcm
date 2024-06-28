@@ -74,12 +74,12 @@ class Character extends AggregateRoot
             'dx', 'iq' => 20,
         };
 
-        $new_adj = $event->points / $cost_per_level;
-
         $attribute = $this->{$event->attr_id};
+        $attribute->calc->points += $event->points;
+
+        $new_adj = $attribute->calc->points / $cost_per_level;
         $attribute->adj = $new_adj;
         $attribute->calc->value = 10 + $new_adj;
-        $attribute->calc->points += $event->points;
     }
 
     protected function applyCharacterPointsReclaimedFromAttribute(CharacterPointsReclaimedFromAttribute $event): void

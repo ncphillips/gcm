@@ -85,6 +85,30 @@ class CharactersTest extends TestCase
         $this->assertEquals(145, $character->points);
     }
 
+    function test_adding_points_to_attributes_multiple_times()
+    {
+        /** @var Character $character */
+        $character = Character::fake()
+            ->given([new CharacterCreated(playerUuid: '1234')])
+            ->when(fn(Character $character) => $character->addPointsToAttribute('st', 10))
+            ->when(fn(Character $character) => $character->addPointsToAttribute('st', 10))
+            ->assertRecorded([
+                new CharacterPointsSpentOnAttribute(attr_id: 'st', points: 10),
+                new CharacterPointsSpentOnAttribute(attr_id: 'st', points: 10),
+            ])
+            ->aggregateRoot();
+
+        $this->assertEquals(AttributeData::from([
+            'attr_id' => 'st',
+            'adj' => 2,
+            'calc' => [
+                'value' => 12,
+                'points' => 20,
+            ],
+        ]), $character->st);
+        $this->assertEquals(130, $character->points);
+    }
+
     function test_removing_points_from_attributes()
     {
         /** @var Character $character */
@@ -103,5 +127,29 @@ class CharactersTest extends TestCase
             ],
         ]), $character->st);
         $this->assertEquals(160, $character->points);
+    }
+
+    public function test_reclaim_points_multiple_times()
+    {
+        /** @var Character $character */
+        $character = Character::fake()
+            ->given([new CharacterCreated(playerUuid: '1234')])
+            ->when(fn(Character $character) => $character->removePointsToAttribute('st', 10))
+            ->when(fn(Character $character) => $character->removePointsToAttribute('st', 10))
+            ->assertRecorded([
+                new CharacterPointsReclaimedFromAttribute(attr_id: 'st', points: 10),
+                new CharacterPointsReclaimedFromAttribute(attr_id: 'st', points: 10),
+            ])
+            ->aggregateRoot();
+
+        $this->assertEquals(AttributeData::from([
+            'attr_id' => 'st',
+            'adj' => -2,
+            'calc' => [
+                'value' => 8,
+                'points' => -20,
+            ],
+        ]), $character->st);
+        $this->assertEquals(170, $character->points);
     }
 }
