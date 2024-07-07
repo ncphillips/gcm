@@ -81,10 +81,16 @@ class UserAggregate extends AggregateRoot
     protected function applyUserEmailChanged(UserEmailChanged $event): void
     {
         $this->email = $event->email;
+        $this->email_verified_at = null;
     }
 
     protected function applyUserEmailVerified(UserEmailVerified $event): void
     {
         $this->email_verified_at = $event->createdAt();
+    }
+
+    protected function applyUserPasswordChanged(UserPasswordChanged $event): void
+    {
+        // Do nothing
     }
 }

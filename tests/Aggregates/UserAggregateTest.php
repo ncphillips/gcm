@@ -111,7 +111,6 @@ test('a user can verify their', function () {
     expect($user->email_verified_at)->toBeInstanceOf(CarbonImmutable::class);
 });
 
-
 /**
  * Changing Emails
  */
@@ -122,13 +121,17 @@ test("a user can change their own email", function () {
 
     /** @var UserAggregate $user */
     $user = UserAggregate::fake($uuid)
-        ->given([new UserCreated(email: $oldEmail, name: 'John Doe', passwordHash: 'password-hash')])
+        ->given([
+            new UserCreated(email: $oldEmail, name: 'John Doe', passwordHash: 'password-hash'),
+            new UserEmailVerified(),
+        ])
         ->when(fn(UserAggregate $user) => $user->setEmail(email: $newEmail))
         ->assertRecorded(new UserEmailChanged(email: $newEmail, changedByUserUuid: $uuid))
         ->aggregateRoot();
 
     expect($user->name)->toBe('John Doe')
-        ->and($user->email)->toBe($newEmail);
+        ->and($user->email)->toBe($newEmail)
+        ->and($user->email_verified_at)->toBeNull();
 });
 
 test("another user can change someone's email", function () {
@@ -139,13 +142,17 @@ test("another user can change someone's email", function () {
 
     /** @var UserAggregate $user */
     $user = UserAggregate::fake($uuid)
-        ->given([new UserCreated(email: $oldEmail, name: 'John Dorian', passwordHash: 'password-hash')])
+        ->given([
+            new UserCreated(email: $oldEmail, name: 'John Dorian', passwordHash: 'password-hash'),
+            new UserEmailVerified(),
+        ])
         ->when(fn(UserAggregate $user) => $user->setEmail(email: $newEmail, changedByUserUuid: $anotherUuid))
         ->assertRecorded(new UserEmailChanged(email: $newEmail, changedByUserUuid: $anotherUuid))
         ->aggregateRoot();
 
     expect($user->name)->toBe('John Dorian')
-        ->and($user->email)->toBe($newEmail);
+        ->and($user->email)->toBe($newEmail)
+        ->and($user->email_verified_at)->toBeNull();
 });
 
 test('a user sets their email, but it does not change', function () {
@@ -154,11 +161,15 @@ test('a user sets their email, but it does not change', function () {
 
     /** @var UserAggregate $user */
     $user = UserAggregate::fake($uuid)
-        ->given([new UserCreated(email: $email, name: 'Gregory Face', passwordHash: 'password-hash')])
+        ->given([
+            new UserCreated(email: $email, name: 'Gregory Face', passwordHash: 'password-hash'),
+            new UserEmailVerified(),
+        ])
         ->when(fn(UserAggregate $user) => $user->setEmail(email: $email))
         ->assertNothingRecorded()
         ->aggregateRoot();
 
     expect($user->name)->toBe('Gregory Face')
-        ->and($user->email)->toBe($email);
+        ->and($user->email)->toBe($email)
+        ->and($user->email_verified_at)->not()->toBeNull();
 });
