@@ -3,6 +3,7 @@
 namespace App\Aggregates;
 
 use App\StorableEvents\UserCreated;
+use App\StorableEvents\UserPasswordChanged;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class UserAggregate extends AggregateRoot
@@ -13,6 +14,13 @@ class UserAggregate extends AggregateRoot
     public function create($name, $email, $passwordHash): self
     {
         $this->recordThat(new UserCreated(email: $email, name: $name, passwordHash: $passwordHash));
+
+        return $this;
+    }
+
+    public function changePassword(string $passwordHash): self
+    {
+        $this->recordThat(new UserPasswordChanged(passwordHash: $passwordHash, changedByUserUuid: $this->uuid()));
 
         return $this;
     }

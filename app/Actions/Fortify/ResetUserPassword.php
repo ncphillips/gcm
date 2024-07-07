@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Aggregates\UserAggregate;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -22,8 +23,8 @@ class ResetUserPassword implements ResetsUserPasswords
             'password' => $this->passwordRules(),
         ])->validate();
 
-        $user->forceFill([
-            'password' => Hash::make($input['password']),
-        ])->save();
+        UserAggregate::retrieve($user->uuid)
+            ->changePassword(Hash::make($input['password']))
+            ->persist();
     }
 }
