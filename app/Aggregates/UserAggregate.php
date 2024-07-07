@@ -3,6 +3,7 @@
 namespace App\Aggregates;
 
 use App\StorableEvents\UserCreated;
+use App\StorableEvents\UserNameChanged;
 use App\StorableEvents\UserPasswordChanged;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
@@ -27,9 +28,21 @@ class UserAggregate extends AggregateRoot
         return $this;
     }
 
+    public function setName(string $name): self
+    {
+        $this->recordThat(new UserNameChanged(name: $name, changedByUserUuid: $this->uuid()));
+
+        return $this;
+    }
+
     protected function applyUserCreated(UserCreated $event): void
     {
         $this->name = $event->name;
         $this->email = $event->email;
+    }
+
+    protected function applyUserNameChanged(UserNameChanged $event): void
+    {
+        $this->name = $event->name;
     }
 }
