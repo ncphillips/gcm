@@ -4,6 +4,7 @@ namespace Tests\Aggregates;
 
 use App\Aggregates\UserAggregate;
 use App\StorableEvents\UserCreated;
+use App\StorableEvents\UserEmailChanged;
 use App\StorableEvents\UserNameChanged;
 use App\StorableEvents\UserPasswordChanged;
 use Illuminate\Support\Str;
@@ -76,7 +77,6 @@ test("another user can change someone's name", function () {
     expect($user->name)->toBe($newName);
 });
 
-
 test('a user sets their name, but it does not change', function () {
     $uuid = (string)Str::uuid();
     $name = 'John Doe';
@@ -90,3 +90,54 @@ test('a user sets their name, but it does not change', function () {
 
     expect($user->name)->toBe($name);
 });
+
+/**
+ * Changing Emails
+ */
+test("a user can change their own email", function () {
+    $uuid = (string)Str::uuid();
+    $oldEmail = 'test@example.com';
+    $newEmail = 'cool@example.com';
+
+    /** @var UserAggregate $user */
+    $user = UserAggregate::fake($uuid)
+        ->given([new UserCreated(email: $oldEmail, name: 'John Doe', passwordHash: 'password-hash')])
+        ->when(fn(UserAggregate $user) => $user->setEmail(email: $newEmail))
+        ->assertRecorded(new UserEmailChanged(email: $newEmail, changedByUserUuid: $uuid))
+        ->aggregateRoot();
+
+    expect($user->name)->toBe('John Doe')
+        ->and($user->email)->toBe($newEmail);
+});
+
+test("another user can change someone's email", function () {
+    $uuid = (string)Str::uuid();
+    $anotherUuid = (string)Str::uuid();
+    $oldEmail = 'test@example.com';
+    $newEmail = 'cool@example.com';
+
+    /** @var UserAggregate $user */
+    $user = UserAggregate::fake($uuid)
+        ->given([new UserCreated(email: $oldEmail, name: 'John Dorian', passwordHash: 'password-hash')])
+        ->when(fn(UserAggregate $user) => $user->setEmail(email: $newEmail, changedByUserUuid: $anotherUuid))
+        ->assertRecorded(new UserEmailChanged(email: $newEmail, changedByUserUuid: $anotherUuid))
+        ->aggregateRoot();
+
+    expect($user->name)->toBe('John Dorian')
+        ->and($user->email)->toBe($newEmail);
+});
+
+test('a user sets their email, but it does not change', function () {
+    $uuid = (string)Str::uuid();
+    $email = 'test@banana.com';
+
+    /** @var UserAggregate $user */
+    $user = UserAggregate::fake($uuid)
+        ->given([new UserCreated(email: $email, name: 'Gregory Face', passwordHash: 'password-hash')])
+        ->when(fn(UserAggregate $user) => $user->setEmail(email: $email))
+        ->assertNothingRecorded()
+        ->aggregateRoot();
+
+    expect($user->name)->toBe('Gregory Face')
+        ->and($user->email)->toBe($email);
+    });
