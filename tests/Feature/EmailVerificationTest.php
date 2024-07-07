@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Aggregates\UserAggregate;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
@@ -35,7 +37,11 @@ class EmailVerificationTest extends TestCase
 
         Event::fake();
 
-        $user = User::factory()->unverified()->create();
+        UserAggregate::retrieve((string) Str::uuid())
+            ->create(name: fake()->name, email: fake()->email, passwordHash: 'password-hash')
+            ->persist();
+
+        $this->actingAs($user = User::first());
 
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',

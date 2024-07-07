@@ -28,31 +28,10 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             $user->updateProfilePhoto($input['photo']);
         }
 
-        if ($input['email'] !== $user->email &&
-            $user instanceof MustVerifyEmail) {
-            $this->updateVerifiedUser($user, $input);
-        } else {
-            // TODO: An awkward thing about this, is that it _might_ trigger SQL updates.
-            UserAggregate::retrieve($user->uuid)
-                ->setName($input['name'])
-                ->setEmail($input['email'])
-                ->persist();
-        }
+        UserAggregate::retrieve($user->uuid)
+            ->setName($input['name'])
+            ->setEmail($input['email'])
+            ->persist();
     }
 
-    /**
-     * Update the given verified user's profile information.
-     *
-     * @param  array<string, string>  $input
-     */
-    protected function updateVerifiedUser(User $user, array $input): void
-    {
-        $user->forceFill([
-            'name' => $input['name'],
-            'email' => $input['email'],
-            'email_verified_at' => null,
-        ])->save();
-
-        $user->sendEmailVerificationNotification();
-    }
 }
