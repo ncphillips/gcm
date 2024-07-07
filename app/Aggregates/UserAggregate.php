@@ -18,9 +18,11 @@ class UserAggregate extends AggregateRoot
         return $this;
     }
 
-    public function changePassword(string $passwordHash): self
+    public function changePassword(string $passwordHash, string|null $changedByUserUuid = null): self
     {
-        $this->recordThat(new UserPasswordChanged(passwordHash: $passwordHash, changedByUserUuid: $this->uuid()));
+        $changedByUserUuid = $changedByUserUuid ?? $this->uuid();
+
+        $this->recordThat(new UserPasswordChanged(passwordHash: $passwordHash, changedByUserUuid: $changedByUserUuid));
 
         return $this;
     }
