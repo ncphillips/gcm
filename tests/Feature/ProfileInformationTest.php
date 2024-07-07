@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Aggregates\UserAggregate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Laravel\Jetstream\Http\Livewire\UpdateProfileInformationForm;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -24,7 +26,11 @@ class ProfileInformationTest extends TestCase
 
     public function test_profile_information_can_be_updated(): void
     {
-        $this->actingAs($user = User::factory()->create());
+        UserAggregate::retrieve((string) Str::uuid())
+            ->create(name: fake()->name, email: fake()->email, passwordHash: 'password-hash')
+            ->persist();
+
+        $this->actingAs($user = User::first());
 
         Livewire::test(UpdateProfileInformationForm::class)
             ->set('state', ['name' => 'Test Name', 'email' => 'test@example.com'])

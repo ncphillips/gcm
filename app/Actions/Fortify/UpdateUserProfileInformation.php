@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Aggregates\UserAggregate;
 use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Validator;
@@ -31,10 +32,11 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             $user instanceof MustVerifyEmail) {
             $this->updateVerifiedUser($user, $input);
         } else {
-            $user->forceFill([
-                'name' => $input['name'],
-                'email' => $input['email'],
-            ])->save();
+            // TODO: An awkward thing about this, is that it _might_ trigger SQL updates.
+            UserAggregate::retrieve($user->uuid)
+                ->setName($input['name'])
+                ->setEmail($input['email'])
+                ->persist();
         }
     }
 
