@@ -10,9 +10,9 @@ class UserAggregate extends AggregateRoot
     public string $name;
     public string $email;
 
-    public function create($name, $email): self
+    public function create($name, $email, $passwordHash): self
     {
-        $this->recordThat(new UserCreated(email: $email, name: $name));
+        $this->recordThat(new UserCreated(email: $email, name: $name, passwordHash: $passwordHash));
 
         return $this;
     }

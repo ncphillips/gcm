@@ -19,7 +19,7 @@ class CreateNewUser implements CreatesNewUsers
     /**
      * Create a newly registered user.
      *
-     * @param  array<string, string>  $input
+     * @param array<string, string> $input
      */
     public function create(array $input): User
     {
@@ -30,30 +30,14 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        return DB::transaction(function () use ($input) {
-            return tap(User::create([
-                'uuid' => (string) Str::uuid(),
-                'name' => $input['name'],
-                'email' => $input['email'],
-                'password' => Hash::make($input['password']),
-            ]), function (User $user) {
-                UserAggregate::retrieve($user->uuid)
-                    ->create($user->name, $user->email)
-                    ->persist();
-                $this->createTeam($user);
-            });
-        });
-    }
+        $passwordHash = Hash::make($input['password']);
 
-    /**
-     * Create a personal team for the user.
-     */
-    protected function createTeam(User $user): void
-    {
-        $user->ownedTeams()->save(Team::forceCreate([
-            'user_id' => $user->id,
-            'name' => explode(' ', $user->name, 2)[0]."'s Team",
-            'personal_team' => true,
-        ]));
+        $uuid = (string)Str::uuid();
+
+        UserAggregate::retrieve($uuid)
+            ->create(name: $input['name'], email: $input['email'], passwordHash: $passwordHash)
+            ->persist();
+
+        return User::where('uuid', $uuid)->first();
     }
 }

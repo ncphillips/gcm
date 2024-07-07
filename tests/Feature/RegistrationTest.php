@@ -47,6 +47,9 @@ class RegistrationTest extends TestCase
         $userAggregate = UserAggregate::retrieve($user->uuid);
         $this->assertEquals('Test User', $userAggregate->name);
         $this->assertEquals('test@example.com', $userAggregate->email);
+
+        $team = $user->ownedTeams()->first();
+        $this->assertNotNull($team);
     }
 
     public function test_email_already_exist(): void

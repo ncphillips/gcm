@@ -13,8 +13,8 @@ test('creating a user', function () {
 
 
     $user = UserAggregate::fake($uuid)
-        ->when(fn(UserAggregate $user) => $user->create(name: $name, email: $email))
-        ->assertRecorded(new UserCreated(email: $email, name: $name))
+        ->when(fn(UserAggregate $user) => $user->create(name: $name, email: $email, passwordHash: 'password'))
+        ->assertRecorded(new UserCreated(email: $email, name: $name, passwordHash: 'password'))
         ->aggregateRoot();
 
     expect($user->name)->toBe($name);
