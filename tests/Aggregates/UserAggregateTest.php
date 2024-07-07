@@ -54,3 +54,17 @@ test("a user can change their own name", function () {
 
     expect($user->name)->toBe('Jane Doe');
 });
+
+test('a user sets their name, but it does not change', function () {
+    $uuid = (string)Str::uuid();
+    $name = 'John Doe';
+
+    /** @var UserAggregate $user */
+    $user = UserAggregate::fake($uuid)
+        ->given([new UserCreated(email: 'test@example.com', name: $name, passwordHash: 'password-hash')])
+        ->when(fn(UserAggregate $user) => $user->setName(name: $name))
+        ->assertNothingRecorded()
+        ->aggregateRoot();
+
+    expect($user->name)->toBe($name);
+});

@@ -30,6 +30,10 @@ class UserAggregate extends AggregateRoot
 
     public function setName(string $name): self
     {
+        if ($this->name === $name) {
+            return $this;
+        }
+
         $this->recordThat(new UserNameChanged(name: $name, changedByUserUuid: $this->uuid()));
 
         return $this;
