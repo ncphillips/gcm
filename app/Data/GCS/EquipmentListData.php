@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Data;
+namespace App\Data\GCS;
 
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 
-class GCSEquipmentListData extends Data
+class EquipmentListData extends Data
 {
     public function __construct(
         public string $type,

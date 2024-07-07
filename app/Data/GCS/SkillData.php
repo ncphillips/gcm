@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Data;
+namespace App\Data\GCS;
 
-use App\Data\GCS\SkillCalcData;
 use Spatie\LaravelData\Data;
 
 class SkillData extends Data

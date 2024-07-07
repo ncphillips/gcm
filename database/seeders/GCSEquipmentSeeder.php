@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Data\EquipmentData;
-use App\Data\GCSEquipmentListData;
+use App\Data\GCS\EquipmentData;
+use App\Data\GCS\EquipmentListData;
 use App\Models\Equipment;
 use Illuminate\Database\Seeder;
 
@@ -16,10 +16,7 @@ class GCSEquipmentSeeder extends Seeder
     {
         $basic_set_equipment = "https://raw.githubusercontent.com/richardwilkes/gcs_master_library/master/Library/Basic%20Set/Basic%20Set%20Equipment.eqp";
 
-        $equipment = GCSEquipmentListData::from(json_decode(file_get_contents($basic_set_equipment), true));
-
-        // DEbug out equipment
-//        dd($equipment);
+        $equipment = EquipmentListData::from(json_decode(file_get_contents($basic_set_equipment), true));
 
         // Iterate through and add to Equipment
         foreach ($equipment->rows as $item) {

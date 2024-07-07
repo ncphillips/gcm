@@ -1,5 +1,5 @@
 @props([
-    /** @var \App\Data\SkillData[]*/
+    /** @var \App\Data\GCS\SkillData[]*/
     'skills'
 ])
 

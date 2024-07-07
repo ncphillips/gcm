@@ -2,8 +2,6 @@
 
 namespace App\Data\GCS;
 
-use App\Data\SkillData;
-use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 
 class CharacterData extends Data

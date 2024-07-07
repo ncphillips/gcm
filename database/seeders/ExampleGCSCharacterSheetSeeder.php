@@ -3,9 +3,7 @@
 namespace Database\Seeders;
 
 use App\Data\GCS\CharacterData;
-use App\Data\SkillData;
 use App\Models\Character;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ExampleGCSCharacterSheetSeeder extends Seeder
