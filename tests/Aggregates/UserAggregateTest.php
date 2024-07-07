@@ -32,7 +32,7 @@ test("users can set their own password", function () {
         ->assertRecorded(new UserPasswordChanged(passwordHash: 'new-password-hash', changedByUserUuid: $uuid));
 });
 
-test("another user can set a user's password", function () {
+test("another user can change someones password", function () {
     $uuid = (string)Str::uuid();
     $anotherUuid = (string)Str::uuid();
 
@@ -42,18 +42,40 @@ test("another user can set a user's password", function () {
         ->assertRecorded(new UserPasswordChanged(passwordHash: 'new-password-hash', changedByUserUuid: $anotherUuid));
 });
 
+/**
+ * Changing Names
+ */
 test("a user can change their own name", function () {
     $uuid = (string)Str::uuid();
+    $oldName = 'John Doe';
+    $newName = 'Jane Doe';
 
     /** @var UserAggregate $user */
     $user = UserAggregate::fake($uuid)
-        ->given([new UserCreated(email: 'test@example.com', name: 'John Doe', passwordHash: 'password-hash')])
-        ->when(fn(UserAggregate $user) => $user->setName(name: 'Jane Doe'))
-        ->assertRecorded(new UserNameChanged(name: 'Jane Doe', changedByUserUuid: $uuid))
+        ->given([new UserCreated(email: 'test@example.com', name: $oldName, passwordHash: 'password-hash')])
+        ->when(fn(UserAggregate $user) => $user->setName(name: $newName))
+        ->assertRecorded(new UserNameChanged(name: $newName, changedByUserUuid: $uuid))
         ->aggregateRoot();
 
-    expect($user->name)->toBe('Jane Doe');
+    expect($user->name)->toBe($newName);
 });
+
+test("another user can change someone's name", function () {
+    $uuid = (string)Str::uuid();
+    $anotherUuid = (string)Str::uuid();
+    $oldName = 'John Doe';
+    $newName = 'Jane Doe';
+
+    /** @var UserAggregate $user */
+    $user = UserAggregate::fake($uuid)
+        ->given([new UserCreated(email: 'test@example.com', name: $oldName, passwordHash: 'password-hash')])
+        ->when(fn(UserAggregate $user) => $user->setName(name: $newName, changedByUserUuid: $anotherUuid))
+        ->assertRecorded(new UserNameChanged(name: $newName, changedByUserUuid: $anotherUuid))
+        ->aggregateRoot();
+
+    expect($user->name)->toBe($newName);
+});
+
 
 test('a user sets their name, but it does not change', function () {
     $uuid = (string)Str::uuid();

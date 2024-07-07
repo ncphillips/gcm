@@ -28,13 +28,15 @@ class UserAggregate extends AggregateRoot
         return $this;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name, string|null $changedByUserUuid = null): self
     {
         if ($this->name === $name) {
             return $this;
         }
 
-        $this->recordThat(new UserNameChanged(name: $name, changedByUserUuid: $this->uuid()));
+        $changedByUserUuid = $changedByUserUuid ?? $this->uuid();
+
+        $this->recordThat(new UserNameChanged(name: $name, changedByUserUuid: $changedByUserUuid));
 
         return $this;
     }
