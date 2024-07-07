@@ -9,15 +9,19 @@ use App\StorableEvents\UserCreated;
 use Illuminate\Support\Str;
 
 test('creating a team', function () {
-    $uuid = (string) Str::uuid();
-    $name = 'John Doe\'s Team';
+    $uuid = (string)Str::uuid();
+    $userUuid = (string)Str::uuid();
+    $userName = 'Test User';
+
+    $teamName = 'Test\'s Team';
 
     /** @var TeamAggregate $team */
     $team = TeamAggregate::fake($uuid)
-        ->when(fn(TeamAggregate $team) => $team->create(name: $name, personalTeam: true))
-        ->assertRecorded(new TeamCreated(name: $name, personalTeam: true))
+        ->when(fn(TeamAggregate $team) => $team->createPersonalTeamForUser(userUuid: $userUuid, userName: $userName))
+        ->assertRecorded(new TeamCreated(userUuid: $userUuid, name: $teamName, personalTeam: true))
         ->aggregateRoot();
 
-    expect($team->name)->toBe($name)
+    expect($team->name)->toBe($teamName)
+        ->and($team->userUuid)->toBe($userUuid)
         ->and($team->personalTeam)->toBe(true);
 });

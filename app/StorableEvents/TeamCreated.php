@@ -7,6 +7,7 @@ use Spatie\EventSourcing\StoredEvents\ShouldBeStored;
 class TeamCreated extends ShouldBeStored
 {
     public function __construct(
+        public string $userUuid,
         public string $name,
         public bool $personalTeam
     )

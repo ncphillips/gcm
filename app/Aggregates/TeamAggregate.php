@@ -7,18 +7,23 @@ use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class TeamAggregate extends AggregateRoot
 {
+
     public string $name;
+    public string $userUuid;
     public bool $personalTeam;
 
-    public function create(string $name, bool $personalTeam): self
+    public function createPersonalTeamForUser(string $userUuid, string $userName): self
     {
-        $this->recordThat(new TeamCreated(name: $name, personalTeam: $personalTeam));
+        $name = explode(' ', $userName, 2)[0] . "'s Team";
+
+        $this->recordThat(new TeamCreated(userUuid: $userUuid, name: $name, personalTeam: true));
 
         return $this;
     }
 
     protected function applyTeamCreated(TeamCreated $event): void
     {
+        $this->userUuid = $event->userUuid;
         $this->name = $event->name;
         $this->personalTeam = $event->personalTeam;
     }
