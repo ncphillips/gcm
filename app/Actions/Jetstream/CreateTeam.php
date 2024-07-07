@@ -2,6 +2,7 @@
 
 namespace App\Actions\Jetstream;
 
+use App\Aggregates\TeamAggregate;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +17,7 @@ class CreateTeam implements CreatesTeams
     /**
      * Validate and create a new team for the given user.
      *
-     * @param  array<string, string>  $input
+     * @param array<string, string> $input
      */
     public function create(User $user, array $input): Team
     {
@@ -28,13 +29,15 @@ class CreateTeam implements CreatesTeams
 
         AddingTeam::dispatch($user);
 
-        $teamUuid = (string) Str::uuid();
+        $teamUuid = (string)Str::uuid();
 
-        $user->switchTeam($team = $user->ownedTeams()->create([
-            'uuid' => $teamUuid,
-            'name' => $input['name'],
-            'personal_team' => false,
-        ]));
+        TeamAggregate::retrieve($teamUuid)
+            ->create(userUuid: $user->uuid, name: $input['name'])
+            ->persist();
+
+        $team = Team::where('uuid', $teamUuid)->first();
+
+        $user->switchTeam($team);
 
         return $team;
     }
