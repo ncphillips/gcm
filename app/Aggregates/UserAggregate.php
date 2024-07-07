@@ -62,6 +62,10 @@ class UserAggregate extends AggregateRoot
 
     public function verifyEmail(): self
     {
+        if ($this->email_verified_at !== null) {
+            return $this;
+        }
+
         $this->recordThat(new UserEmailVerified());
 
         return $this;

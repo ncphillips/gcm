@@ -98,7 +98,7 @@ test('a user sets their name, but it does not change', function () {
  * Verifying Email
  */
 
-test('a user can verify their', function () {
+test('a user can verify their email', function () {
     $uuid = (string)Str::uuid();
 
     /** @var UserAggregate $user */
@@ -109,6 +109,24 @@ test('a user can verify their', function () {
         ->aggregateRoot();
 
     expect($user->email_verified_at)->toBeInstanceOf(CarbonImmutable::class);
+});
+
+test('verifying twice does not change anything', function () {
+    $uuid = (string)Str::uuid();
+
+    $userEmailVerified = new UserEmailVerified();
+
+    /** @var UserAggregate $user */
+    $user = UserAggregate::fake($uuid)
+        ->given([
+            new UserCreated(email: 'test@example.com', name: 'John Doe', passwordHash: 'password-hash'),
+            $userEmailVerified,
+        ])
+        ->when(fn(UserAggregate $user) => $user->verifyEmail())
+        ->assertNothingRecorded()
+        ->aggregateRoot();
+
+    expect($user->email_verified_at)->toEqual($userEmailVerified->createdAt());
 });
 
 /**
