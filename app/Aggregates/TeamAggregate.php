@@ -4,6 +4,7 @@ namespace App\Aggregates;
 
 use App\StorableEvents\TeamCreated;
 use App\StorableEvents\TeamDeleted;
+use App\StorableEvents\TeamMemberInvited;
 use Carbon\CarbonImmutable;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
@@ -32,6 +33,13 @@ class TeamAggregate extends AggregateRoot
     public function delete(string $deletedByUserUuid): self
     {
         $this->recordThat(new TeamDeleted(deletedByUserUuid: $deletedByUserUuid));
+
+        return $this;
+    }
+
+    public function invite(string $email, string $role, string $invitedByUserUuid): self
+    {
+        $this->recordThat(new TeamMemberInvited(email: $email, role: $role, invitedByUserUuid: $invitedByUserUuid));
 
         return $this;
     }

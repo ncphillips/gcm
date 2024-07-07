@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\DB;
 use Laravel\Jetstream\Contracts\DeletesTeams;
 use Laravel\Jetstream\Contracts\DeletesUsers;
 
+/**
+ * TODO: Needs tests
+ */
 class DeleteUser implements DeletesUsers
 {
     /**

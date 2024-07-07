@@ -2,10 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Aggregates\UserAggregate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
-use Laravel\Jetstream\Features;
+use Illuminate\Support\Str;
 use Laravel\Jetstream\Http\Livewire\TeamMemberManager;
 use Laravel\Jetstream\Mail\TeamInvitation;
 use Livewire\Livewire;
@@ -17,10 +18,6 @@ class InviteTeamMemberTest extends TestCase
 
     public function test_team_members_can_be_invited_to_team(): void
     {
-        if (! Features::sendsTeamInvitations()) {
-            $this->markTestSkipped('Team invitations not enabled.');
-        }
-
         Mail::fake();
 
         $this->actingAs($user = User::factory()->withPersonalTeam()->create());
@@ -38,13 +35,13 @@ class InviteTeamMemberTest extends TestCase
 
     public function test_team_member_invitations_can_be_cancelled(): void
     {
-        if (! Features::sendsTeamInvitations()) {
-            $this->markTestSkipped('Team invitations not enabled.');
-        }
-
         Mail::fake();
 
-        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        UserAggregate::retrieve($uuid = (string) Str::uuid())
+            ->create('Bob', 'bob@example.com', 'password-hash')
+            ->persist();
+
+        $this->actingAs($user = User::where('uuid', $uuid)->first());
 
         // Add the team member...
         $component = Livewire::test(TeamMemberManager::class, ['team' => $user->currentTeam])

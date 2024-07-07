@@ -2,18 +2,17 @@
 
 namespace App\Actions\Jetstream;
 
+use App\Aggregates\TeamAggregate;
 use App\Models\Team;
 use App\Models\User;
 use Closure;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Jetstream\Contracts\InvitesTeamMembers;
 use Laravel\Jetstream\Events\InvitingTeamMember;
 use Laravel\Jetstream\Jetstream;
-use Laravel\Jetstream\Mail\TeamInvitation;
 use Laravel\Jetstream\Rules\Role;
 
 class InviteTeamMember implements InvitesTeamMembers
@@ -29,12 +28,9 @@ class InviteTeamMember implements InvitesTeamMembers
 
         InvitingTeamMember::dispatch($team, $email, $role);
 
-        $invitation = $team->teamInvitations()->create([
-            'email' => $email,
-            'role' => $role,
-        ]);
-
-        Mail::to($email)->send(new TeamInvitation($invitation));
+        TeamAggregate::retrieve($team->uuid)
+            ->invite($email, $role, $user->uuid)
+            ->persist();
     }
 
     /**

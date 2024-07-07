@@ -6,6 +6,7 @@ use App\Aggregates\TeamAggregate;
 use App\Aggregates\UserAggregate;
 use App\StorableEvents\TeamCreated;
 use App\StorableEvents\TeamDeleted;
+use App\StorableEvents\TeamMemberInvited;
 use App\StorableEvents\UserCreated;
 use Illuminate\Support\Str;
 
@@ -55,4 +56,19 @@ test('deleting a team', function () {
         ->aggregateRoot();
 
     $this->assertNotNull($team->deletedAt);
+});
+
+test('inviting a team member', function () {
+    $teamUuid = (string)Str::uuid();
+    $userUuid = (string)Str::uuid();
+    $email = fake()->email;
+    $role = 'member';
+
+    /** @var TeamAggregate $team */
+    $team = TeamAggregate::fake($teamUuid)
+        ->given([new TeamCreated(userUuid: $userUuid, name: 'A New Team', personalTeam: false)])
+        ->when(fn(TeamAggregate $team) => $team->invite(email: $email, role: $role, invitedByUserUuid: $userUuid))
+        ->assertRecorded(new TeamMemberInvited(email: $email, role: $role, invitedByUserUuid: $userUuid))
+        ->aggregateRoot();
+
 });
