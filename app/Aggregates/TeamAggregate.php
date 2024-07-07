@@ -21,6 +21,13 @@ class TeamAggregate extends AggregateRoot
         return $this;
     }
 
+    public function create(string $userUuid, string $name): self
+    {
+        $this->recordThat(new TeamCreated(userUuid: $userUuid, name: $name, personalTeam: false));
+
+        return $this;
+    }
+
     protected function applyTeamCreated(TeamCreated $event): void
     {
         $this->userUuid = $event->userUuid;
