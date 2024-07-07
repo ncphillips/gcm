@@ -5,8 +5,10 @@ namespace Tests\Aggregates;
 use App\Aggregates\UserAggregate;
 use App\StorableEvents\UserCreated;
 use App\StorableEvents\UserEmailChanged;
+use App\StorableEvents\UserEmailVerified;
 use App\StorableEvents\UserNameChanged;
 use App\StorableEvents\UserPasswordChanged;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 
 test('creating a user', function () {
@@ -22,6 +24,7 @@ test('creating a user', function () {
 
     expect($user->name)->toBe($name);
     expect($user->email)->toBe($email);
+    expect($user->email_verified_at)->toBeNull();
 });
 
 test("users can set their own password", function () {
@@ -92,6 +95,24 @@ test('a user sets their name, but it does not change', function () {
 });
 
 /**
+ * Verifying Email
+ */
+
+test('a user can verify their', function () {
+    $uuid = (string)Str::uuid();
+
+    /** @var UserAggregate $user */
+    $user = UserAggregate::fake($uuid)
+        ->given([new UserCreated(email: 'test@example.com', name: 'John Doe', passwordHash: 'password-hash')])
+        ->when(fn(UserAggregate $user) => $user->verifyEmail())
+        ->assertRecorded(new UserEmailVerified())
+        ->aggregateRoot();
+
+    expect($user->email_verified_at)->toBeInstanceOf(CarbonImmutable::class);
+});
+
+
+/**
  * Changing Emails
  */
 test("a user can change their own email", function () {
@@ -140,4 +161,4 @@ test('a user sets their email, but it does not change', function () {
 
     expect($user->name)->toBe('Gregory Face')
         ->and($user->email)->toBe($email);
-    });
+});

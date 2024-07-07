@@ -4,14 +4,19 @@ namespace App\Aggregates;
 
 use App\StorableEvents\UserCreated;
 use App\StorableEvents\UserEmailChanged;
+use App\StorableEvents\UserEmailVerified;
 use App\StorableEvents\UserNameChanged;
 use App\StorableEvents\UserPasswordChanged;
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
+use DateTime;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class UserAggregate extends AggregateRoot
 {
     public string $name;
     public string $email;
+    public CarbonImmutable|null $email_verified_at = null;
 
     public function create($name, $email, $passwordHash): self
     {
@@ -55,6 +60,13 @@ class UserAggregate extends AggregateRoot
         return $this;
     }
 
+    public function verifyEmail(): self
+    {
+        $this->recordThat(new UserEmailVerified());
+
+        return $this;
+    }
+
     protected function applyUserCreated(UserCreated $event): void
     {
         $this->name = $event->name;
@@ -69,5 +81,10 @@ class UserAggregate extends AggregateRoot
     protected function applyUserEmailChanged(UserEmailChanged $event): void
     {
         $this->email = $event->email;
+    }
+
+    protected function applyUserEmailVerified(UserEmailVerified $event): void
+    {
+        $this->email_verified_at = $event->createdAt();
     }
 }
