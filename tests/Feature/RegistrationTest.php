@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Aggregates\UserAggregate;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
 use Laravel\Jetstream\Jetstream;
@@ -49,5 +51,16 @@ class RegistrationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+
+        // Get last created user
+        $user = User::latest()->first();
+        $this->assertEquals('Test User', $user->name);
+        $this->assertEquals('test@example.com', $user->email);
+        $this->assertNotNull($user->uuid);
+
+        // Check that aggregate was created.
+        $userAggregate = UserAggregate::retrieve($user->uuid);
+        $this->assertEquals('Test User', $userAggregate->name);
+        $this->assertEquals('test@example.com', $userAggregate->email);
     }
 }
