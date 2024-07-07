@@ -5,6 +5,7 @@ namespace App\Projectors;
 use App\Models\Team;
 use App\Models\User;
 use App\StorableEvents\TeamCreated;
+use App\StorableEvents\TeamDeleted;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class TeamProjector extends Projector
@@ -19,5 +20,12 @@ class TeamProjector extends Projector
             'name' => $event->name,
             'personal_team' => $event->personalTeam,
         ]));
+    }
+
+    public function onTeamDeleted(TeamDeleted $event): void
+    {
+        $team = Team::where('uuid', $event->aggregateRootUuid())->first();
+
+        $team->purge();
     }
 }

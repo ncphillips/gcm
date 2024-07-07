@@ -5,6 +5,7 @@ namespace Tests\Aggregates;
 use App\Aggregates\TeamAggregate;
 use App\Aggregates\UserAggregate;
 use App\StorableEvents\TeamCreated;
+use App\StorableEvents\TeamDeleted;
 use App\StorableEvents\UserCreated;
 use Illuminate\Support\Str;
 
@@ -41,4 +42,17 @@ test('creating a team', function () {
     expect($team->name)->toBe($teamName)
         ->and($team->userUuid)->toBe($userUuid)
         ->and($team->personalTeam)->toBe(false);
+});
+
+test('deleting a team', function () {
+    $uuid = (string)Str::uuid();
+    $userUuid = (string)Str::uuid();
+    /** @var TeamAggregate $team */
+    $team = TeamAggregate::fake($uuid)
+        ->given([new TeamCreated(userUuid: $userUuid, name: 'A New Team', personalTeam: false)])
+        ->when(fn(TeamAggregate $team) => $team->delete(deletedByUserUuid: $userUuid))
+        ->assertRecorded(new TeamDeleted(deletedByUserUuid: $userUuid))
+        ->aggregateRoot();
+
+    $this->assertNotNull($team->deletedAt);
 });
