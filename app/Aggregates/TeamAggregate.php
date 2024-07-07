@@ -16,14 +16,12 @@ class TeamAggregate extends AggregateRoot
     {
         $name = explode(' ', $userName, 2)[0] . "'s Team";
 
-        $this->recordThat(new TeamCreated(userUuid: $userUuid, name: $name, personalTeam: true));
-
-        return $this;
+        return $this->create(userUuid: $userUuid, name: $name, personalTeam: true);
     }
 
-    public function create(string $userUuid, string $name): self
+    public function create(string $userUuid, string $name, bool $personalTeam = false): self
     {
-        $this->recordThat(new TeamCreated(userUuid: $userUuid, name: $name, personalTeam: false));
+        $this->recordThat(new TeamCreated(userUuid: $userUuid, name: $name, personalTeam: $personalTeam));
 
         return $this;
     }
