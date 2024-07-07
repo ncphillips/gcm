@@ -8,6 +8,11 @@ use Laravel\Jetstream\Events\TeamDeleted;
 use Laravel\Jetstream\Events\TeamUpdated;
 use Laravel\Jetstream\Team as JetstreamTeam;
 
+/**
+ * @property string $uuid
+ * @property string $name
+ * @property bool $personal_team
+ */
 class Team extends JetstreamTeam
 {
     use HasFactory;
@@ -18,6 +23,7 @@ class Team extends JetstreamTeam
      * @var array<int, string>
      */
     protected $fillable = [
+        'uuid',
         'name',
         'personal_team',
     ];
